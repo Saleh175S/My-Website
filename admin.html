@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>لوحة تحكم دكتور صالح</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 500px;
+            background: white;
+            padding: 30px;
+            margin: 30px auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 25px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 15px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .sec-group {
+            background-color: #fff3cd;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #ffeeba;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>لوحة إدارة المنتجات 🐾</h2>
+    
+    <div class="sec-group">
+        <div class="form-group">
+            <label>اسم حسابك على GitHub:</label>
+            <input type="text" id="ghUser" placeholder="اكتب اسم حسابك">
+        </div>
+        <div class="form-group">
+            <label>اسم المستودع (Repository):</label>
+            <input type="text" id="ghRepo" placeholder="مثال: dr-saleh-shop">
+        </div>
+        <div class="form-group">
+            <label>مفتاح الأمان السري (GitHub Token):</label>
+            <input type="password" id="ghToken" placeholder="الصق الـ Token هنا">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label>اسم المنتج الجديد:</label>
+        <input type="text" id="prodName">
+    </div>
+
+    <div class="form-group">
+        <label>القسم الحالي:</label>
+        <select id="prodCategory">
+            <option value="cats">مستلزمات قطط</option>
+            <option value="dogs">مستلزمات كلاب</option>
+            <option value="chick">مستلزمات كتاكيت</option>
+            <option value="vaccine">تطعيمات وتحصينات</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>الحجم / المقاس:</label>
+        <input type="text" id="prodSize">
+    </div>
+
+    <div class="form-group">
+        <label>المساحة / السعة:</label>
+        <input type="text" id="prodStorage">
+    </div>
+
+    <div class="form-group">
+        <label>كود المنتج:</label>
+        <input type="text" id="prodCode">
+    </div>
+
+    <div class="form-group">
+        <label>السعر:</label>
+        <input type="text" id="prodPrice">
+    </div>
+
+    <div class="form-group">
+        <label>رابط صورة المنتج:</label>
+        <input type="text" id="prodImage">
+    </div>
+
+    <button onclick="submitProduct()">حفظ وإضافة المنتج للموقع فوراً</button>
+</div>
+
+<script>
+function utf8_to_b64(str) {
+    return btoa(unescape(encodeURIComponent(str)));
+}
+
+function b64_to_utf8(str) {
+    return decodeURIComponent(escape(atob(str)));
+}
+
+function submitProduct() {
+    const user = document.getElementById('ghUser').value.trim();
+    const repo = document.getElementById('ghRepo').value.trim();
+    const token = document.getElementById('ghToken').value.trim();
+    
+    const name = document.getElementById('prodName').value.trim();
+    const category = document.getElementById('prodCategory').value;
+    const size = document.getElementById('prodSize').value.trim();
+    const storage = document.getElementById('prodStorage').value.trim();
+    const code = document.getElementById('prodCode').value.trim();
+    const price = document.getElementById('prodPrice').value.trim();
+    const image = document.getElementById('prodImage').value.trim();
+
+    if (!user || !repo || !token || !name || !price || !image) {
+        alert("برجاء ملء البيانات الأساسية ومفتاح الأمان أولاً!");
+        return;
+    }
+
+    const url = `https://api.github.com/repos/${user}/${repo}/contents/products.json`;
+
+    fetch(url, {
+        headers: {
+            "Authorization": `token ${token}`
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("Failed to fetch products.json");
+        }
+        return response.json();
+    })
+    .then(fileData => {
+        const sha = fileData.sha;
+        const currentContent = b64_to_utf8(fileData.content);
+        let productsList = [];
+        
+        try {
+            productsList = JSON.parse(currentContent);
+        } catch (e) {
+            productsList = [];
+        }
+
+        const newId = productsList.length > 0 ? Math.max(...productsList.map(p => p.id)) + 1 : 1;
+
+        const newProduct = {
+            id: newId,
+            name: name,
+            category: category,
+            size: size,
+            storage: storage,
+            code: code,
+            price: price,
+            image: image
+        };
+
+        productsList.push(newProduct);
+
+        const updatedContentBase64 = utf8_to_b64(JSON.stringify(productsList, null, 2));
+
+        const bodyData = {
+            message: `Add product: ${name}`,
+            content: updatedContentBase64,
+            sha: sha
+        };
+
+        return fetch(url, {
+            method: "PUT",
+            headers: {
+                "Authorization": `token ${token}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(bodyData)
+        });
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("Failed to update");
+        }
+        return response.json();
+    })
+    .then(data => {
+        alert("تم إضافة المنتج بنجاح وتحديث الموقع!");
+        document.getElementById('prodName').value = '';
+        document.getElementById('prodSize').value = '';
+        document.getElementById('prodStorage').value = '';
+        document.getElementById('prodCode').value = '';
+        document.getElementById('prodPrice').value = '';
+        document.getElementById('prodImage').value = '';
+    })
+    .catch(error => {
+        console.error(error);
+        alert("حدث خطأ! تأكد من صحة اسم الحساب، المستودع، ومفتاح الأمان.");
+    });
+}
+</script>
+</body>
+</html>
