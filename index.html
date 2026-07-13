@@ -1,167 +1,117 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <title>Saleh</title>
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-        }
-        #main {
-            min-height: 100vh;
-            background-image: linear-gradient(rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.6)), url('https://ibb.co');
-            background-repeat: no-repeat;
-            background-position: center;
-            background-size: cover;
-            padding: 20px;
-            transition: margin-right 0.5s;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 20px;
-        }
-        #main div {
-            background-color: rgba(255, 255, 255, 0.95) !important;
-            position: relative;
-            z-index: 2;
-        }
-        h1 {
-            background-color: pink;
-            text-align: center;
-            padding: 20px 10px;
-            margin: 0;
-            font-size: 32px;
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-        .sidebar {
-            width: 0;
-            position: fixed;
-            top: 0;
-            right: 0;
-            height: 100%;
-            background-color: #111;
-            overflow-x: hidden;
-            transition: 0.5s;
-            padding-top: 60px;
-            z-index: 10;
-        }
-        .sidebar a {
-            padding: 15px 25px 15px 15px;
-            text-decoration: none;
-            font-size: 22px;
-            color: #818181;
-            display: block;
-            transition: 0.3s;
-            text-align: right;
-        }
-        .sidebar a:hover {
-            color: #f1f1f1;
-        }
-        .sidebar .closebtn {
-            position: absolute;
-            top: 10px;
-            left: 25px;
-            font-size: 36px;
-        }
-    </style>
+             <meta charset="UTF-8">
+             <title> Saleh </title>
+<style>
+#main {
+    min-height: 100vh;
+    background-image: linear-gradient(rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.4)), url('./logo.png');
+  
+    background-repeat: no-repeat;
+    background-position: center 360px;
+    background-size: 110% auto;
+}
+#main div {
+    background-color: rgba(255, 255, 255, 0.85) !important;
+    position: relative;
+    z-index: 2;
+}
+h1 {
+    background-color: pink;
+    text-align: center;
+    padding: 30px 10px;
+    margin: 0;
+    font-size: 32px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+</style>
 </head>
 <body>
-
-    <h1>
-        <span style="color: red;">دكتور صالح</span>
-        <span style="color: black;"> - </span>
-        <span style="color: blue;">Doctor Saleh</span>
-        <img src="https://ibb.co" style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%;">
-    </h1>
-
-    <button onclick="togglesidebar()" style="font-size: 40px; background: none; border: none; cursor: pointer; margin: 15px;">☰</button>
-
-    <div id="mysidebar" class="sidebar">
-        <a href="javascript:void(0)" class="closebtn" onclick="togglesidebar()">&times;</a>
-        <a href="#" onclick="showProducts('cats');">مستلزمات قطط</a>
-        <a href="#" onclick="showProducts('dogs');">مستلزمات كلاب</a>
-        <a href="#" onclick="showProducts('chick');">مستلزمات كتاكيت</a>
-        <a href="#" onclick="showProducts('vaccine');">تطعيمات وتحصينات</a>
-    </div>
-
-    <div id="main">
-    </div>
-
-    <script>
-        var productsDb = [
-            { 
-                id: 1, 
-                name: "طبق طعام قطط مزدوج", 
-                category: "cats", 
-                size: "20*15cm", 
-                storage: "70g", 
-                code: "A1", 
-                price: "35 EGP", 
-                image: "https://ibb.co" 
-            },
-            { 
-                id: 2, 
-                name: "طوق كلاب فاخر", 
-                category: "dogs", 
-                size: "30cm", 
-                storage: "N/A",
-                code: "B1", 
-                price: "55 EGP",
-                image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ0GdoxwfOn2i1HnZy0apCC-lwH_zVF3c-m4BexHDBoPw&s=" 
-            }
+               <h1>
+               <span style= "color: red;"> دكتور صالح 
+               </span>
+               <span style="color: black;"> -
+               </span>
+               <span style= "color: yellow;">Doctor Saleh 
+               <img src="./logo.png" style="width: 50px; height: 50px; object-fit: contain;">
+               </span>
+               </h1>
+               <button onclick= "togglesidebar()" style= "font-size: 60px; background: none ; border: none; cursor: pointer; margin: 15px;"> ☰ 
+               </button>
+<div id="mysidebar"  style="width: 0; position: fixed; top: 0; right: 0; height: 100%; background-color: #111; overflow-x: hidden; transition: 0.5s; padding-top: 60px;">
+               <a href="javascript:void(0)" onclick="togglesidebar()" style="position: absolute; top: 20px; left: 25px; font-size: 36px; color: white; text-decoration: none;">&times;</a>
+               <a href="#"onclick="showProducts('cats'); togglesidebar();" style="padding: 15px; text-decoration: none; font-size: 22px; color: #818181; display: block; transition: 0.3s; text-align: right;"> مستلزمات  قطط</a>
+               <a href="#" onclick="showProducts('dogs'); togglesidebar();" style="padding: 15px; text-decoration: none; font-size: 22px; color: #818181; display: block; transition: 0.3s; text-align: right;">مستلزمات  كلاب  </a>
+               <a href="#" onclick="showProducts('chick'); togglesidebar();" style="padding: 15px; text-decoration: none; font-size: 22px; color: #818181; display: block; transition: 0.3s; text-align: right;">  مستلزمات  كتاكيت   </a>
+               <a href="#" onclick="showProducts('vaccine'); togglesidebar();" style="padding: 15px; text-decoration: none; font-size: 22px; color: #818181; display: block; transition: 0.3s; text-align: right;"> تطعيمات وتحصينات   </a>
+</div>
+<div id="main" style="padding: 20px; text-align: center; transition: margin-right 0.5s;">
+</div>
+<script>
+  var productsDb = [
+    {
+    id: 1,
+    name: "طبق طعام قطط من البلاستيك المعالج",
+    category: "cats",
+    size: "20*15cm",
+    storage: "70g",
+    code: "A1",
+    price: "35 EGP",
+    image: "https://cdn.salla.sa/aGvRX/dc766153-372f-4075-8a8a-f0c57387b227-989.16666666667x1000-duvI2R23uRHl8Emwc9NMMtfxrzlyd7PjSVvkLvmj.jpg"
+  },
+{
+        id:2,
+        name:"طوق كلاب فاخر",
+        category:"dogs",
+        size: "30cm",
+        code:"B1",
+        Prece: "55 EGP",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ0GdoxwfOn2i1HnZy0apCC-lwH_zVF3c-m4BexHDBoPw&s=10"
+        }
         ];
 
-        function togglesidebar() {
-            var sidebar = document.getElementById("mysidebar");
-            var mainContent = document.getElementById("main");
-            
-            if (sidebar.style.width === "250px") {
-                sidebar.style.width = "0";
-                mainContent.style.marginRight = "0";
-            } else {
-                sidebar.style.width = "250px";
-                mainContent.style.marginRight = "250px";
-            }
-        }
-
-        function showProducts(chosenCategory) {
-            var mainContent = document.getElementById("main");
-            var cardHtml = "";
-            var found = false;
-
-            for (var i = 0; i < productsDb.length; i++) {
-                if (productsDb[i].category === chosenCategory) {
-                    found = true;
-                    cardHtml += `<div style="border: 1px solid #ccc; padding: 15px; border-radius: 8px; width: 220px; text-align: center; background-color: #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">`;
-                    cardHtml += `<img src="${productsDb[i].image}" style="width: 100%; height: 150px; object-fit: contain; border-radius: 4px;">`;
-                    cardHtml += `<h3 style="font-size: 18px; margin: 10px 0; color: #333;">${productsDb[i].name}</h3>`;
-                    cardHtml += `<p style="font-size: 14px; color: #666; margin: 5px 0;">الحجم: ${productsDb[i].size}</p>`;
-                    
-                    if (productsDb[i].storage && productsDb[i].storage !== "N/A") {
-                        cardHtml += `<p style="font-size: 14px; color: #666; margin: 5px 0;">المساحة: ${productsDb[i].storage}</p>`;
-                    }
-                    if (productsDb[i].code) {
-                        cardHtml += `<p style="font-size: 14px; color: #666; margin: 5px 0;">كود: ${productsDb[i].code}</p>`;
-                    }
-                    
-                    cardHtml += `<div style="font-size: 18px; font-weight: bold; color: #e44d26; margin-top: 10px;">${productsDb[i].price}</div>`;
-                    cardHtml += `</div>`;
+                function togglesidebar() 
+                {
+                var sidebar=document.getElementById("mysidebar");
+                var mainContent=document.getElementById("main");
+                if (sidebar.style.width==="250px") {
+                sidebar.style.width="0";
+                mainContent.style.marginRight="0";}
+                else { 
+                sidebar.style.width="250px";
+                mainContent.style.marginRight="250px";
                 }
+                }
+                function showProducts(chosenCategory) {
+    var mainContent = document.getElementById("main");
+    var cardHtml = "";
+    for (var i = 0; i < productsDb.length; i++) {
+        if (productsDb[i].category === chosenCategory) {
+            cardHtml += `<div style="border: 1px solid #ccc; padding: 15px; border-radius: 8px; width: 200px; text-align: center; background-color: #fff; margin: 10px;">`;
+            cardHtml += `<img src="${productsDb[i].image}" style="width: 100%; height: 150px; object-fit: contain; border-radius: 4px;">`;
+            cardHtml += `<h3 style="font-size: 18px; margin: 10px 0; color: #333;">${productsDb[i].name}</h3>`;
+            cardHtml += `<p style="font-size: 14px; color: #666; margin: 5px 0;">الحجم :${productsDb[i].size}</p>`;
+       if (productsDb[i].storage) {
+            cardHtml += `<p style="font-size: 14px; color: #666; margin: 5px 0;">المساحة: ${productsDb[i].storage}</p>`;
             }
-
-            if (!found) {
-                cardHtml = `<h2 style="color: #333; width: 100%;">لا توجد منتجات متوفرة حالياً في هذا القسم.</h2>`;
+       if (productsDb[i].code) {
+            cardHtml += `<p style="font-size: 14px; color: #666; margin: 5px 0;"> كود: ${productsDb[i].code}</p>`;
             }
+            cardHtml += `<div style="font-size: 16px; font-weight: bold; color: #e44d26; margin-top: 10px;">${productsDb[i].price || '22 EGP'}</div>`;
+            cardHtml += `</div>`;
+            }
+            }
+           mainContent.innerHTML = cardHtml;}
 
-            mainContent.innerHTML = cardHtml;
-            
-            togglesidebar();
-        }
-    </script>
+
+</script>
+
+
 </body>
-</html>
+  </html>
