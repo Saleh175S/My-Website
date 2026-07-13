@@ -45,6 +45,9 @@ h1 span {
 </head>
 <body>
 <h1>
+<button
+                onclick="togglesidebar()" style="font-size: 60px; background: none; border: none; cursor: pointer; margin: 15px; display: inline-block; width: auto; position: relative; z-index: 5;"> ☰ 
+</button>
 <span
                 style= "color: red;"> دكتور صالح 
 </span>
@@ -57,9 +60,7 @@ h1 span {
                 <img src="./logo.png" style="height: 100%; width: auto; object-fit: contain; max-height: 120px;">
 
 </h1>
-<button
-                onclick="togglesidebar()" style="font-size: 60px; background: none; border: none; cursor: pointer; margin: 15px; display: inline-block; width: auto; position: relative; z-index: 5;"> ☰ 
-</button>
+
 <div 
                id="mysidebar"  style="width: 0; position: fixed; top: 0; right: 0; height: 100%; background-color: #111; overflow-x: hidden; transition: 0.5s; padding-top: 60px;">
                <a href="javascript:void(0)" onclick="togglesidebar()" style="position: absolute; top: 20px; left: 25px; font-size: 36px; color: white; text-decoration: none;">&times;</a>
