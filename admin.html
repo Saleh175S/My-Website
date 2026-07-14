@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Dashboard</title>
+    <title>لوحة تحكم الإدارة</title>
     <style>
         body { font-family: Arial, sans-serif; background-color: #f4f4f9; padding: 20px; margin: 0; }
         .container { max-width: 500px; background: white; padding: 25px; margin: 0 auto; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
@@ -28,51 +28,51 @@
 <body>
 
 <div class="container">
-    <h2>Admin Dashboard</h2>
+    <h2>لوحة تحكم الإدارة</h2>
     
     <div class="tabs">
-        <button class="tab-btn active" onclick="showSection('add', event)">Add Product</button>
-        <button class="tab-btn" onclick="showSection('manage', event)">Manage Products</button>
+        <button class="tab-btn active" onclick="showSection('add', event)">إضافة منتج</button>
+        <button class="tab-btn" onclick="showSection('manage', event)">إدارة المنتجات</button>
     </div>
 
     <div class="sec-group">
         <div class="form-group">
-            <label>GitHub Username:</label>
-            <input type="text" id="ghUser" placeholder="e.g. username">
+            <label>اسم المستخدم على GitHub:</label>
+            <input type="text" id="ghUser" placeholder="اسم حسابك">
         </div>
         <div class="form-group">
-            <label>Repository Name:</label>
-            <input type="text" id="ghRepo" placeholder="e.g. my-shop">
+            <label>اسم المستودع:</label>
+            <input type="text" id="ghRepo" placeholder="اسم المستودع">
         </div>
         <div class="form-group">
-            <label>GitHub Token:</label>
+            <label>رمز الأمان (Token):</label>
             <input type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxx">
         </div>
     </div>
 
-    <!-- Add Section -->
+    <!-- قسم الإضافة -->
     <div id="addSection" class="section active">
-        <div class="form-group"><label>Product Name:</label><input type="text" id="addName"></div>
+        <div class="form-group"><label>اسم المنتج:</label><input type="text" id="addName"></div>
         <div class="form-group">
-            <label>Category:</label>
+            <label>القسم:</label>
             <select id="addCategory">
-                <option value="cats">Cats</option>
-                <option value="dogs">Dogs</option>
-                <option value="chick">Chickens</option>
-                <option value="vaccine">Vaccines</option>
+                <option value="cats">قطط</option>
+                <option value="dogs">كلاب</option>
+                <option value="chick">كتاكيت</option>
+                <option value="vaccine">تطعيمات</option>
             </select>
         </div>
-        <div class="form-group"><label>Size:</label><input type="text" id="addSize"></div>
-        <div class="form-group"><label>Storage:</label><input type="text" id="addStorage"></div>
-        <div class="form-group"><label>Product Code:</label><input type="text" id="addCode"></div>
-        <div class="form-group"><label>Price:</label><input type="text" id="addPrice"></div>
-        <div class="form-group"><label>Image URL:</label><input type="text" id="addImage"></div>
-        <button onclick="addProduct()">Save Product</button>
+        <div class="form-group"><label>الحجم:</label><input type="text" id="addSize"></div>
+        <div class="form-group"><label>المساحة / السعة:</label><input type="text" id="addStorage"></div>
+        <div class="form-group"><label>كود المنتج:</label><input type="text" id="addCode"></div>
+        <div class="form-group"><label>السعر:</label><input type="text" id="addPrice"></div>
+        <div class="form-group"><label>رابط الصورة:</label><input type="text" id="addImage"></div>
+        <button onclick="addProduct()">حفظ المنتج</button>
     </div>
 
-    <!-- Manage Section -->
+    <!-- قسم الإدارة -->
     <div id="manageSection" class="section">
-        <button onclick="loadProducts()" style="background:#28a745; margin-bottom: 15px;">Load Products List</button>
+        <button onclick="loadProducts()" style="background:#28a745; margin-bottom: 15px;">تحميل قائمة المنتجات</button>
         <div id="productsList"></div>
     </div>
 </div>
@@ -98,7 +98,7 @@ function getAuth() {
 
 async function loadProducts() {
     const {user, repo, token} = getAuth();
-    if (!user || !repo || !token) return alert("Please fill GitHub credentials first!");
+    if (!user || !repo || !token) return alert("يرجى إدخال بيانات GitHub أولاً!");
     
     try {
         const res = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/products.json`, { headers: { "Authorization": `token ${token}` } });
@@ -109,28 +109,30 @@ async function loadProducts() {
         list.innerHTML = '';
         
         if(products.length === 0) {
-            list.innerHTML = '<p style="text-align:center; color:#999;">No products found.</p>';
+            list.innerHTML = '<p style="text-align:center; color:#999;">لا توجد منتجات.</p>';
             return;
         }
         
         const categories = { cats: [], dogs: [], chick: [], vaccine: [] };
+        const catNames = { cats: 'قطط', dogs: 'كلاب', chick: 'كتاكيت', vaccine: 'تطعيمات' };
+
         products.forEach(p => {
             const cat = p.category || 'cats';
             if (categories[cat]) { categories[cat].push(p); } else { categories['cats'].push(p); }
         });
 
-        for (const [key, prods] of Object.getOwnPropertyNames(categories).map(k => [k, categories[k]])) {
-            if (prods.length === 0) continue;
+        for (const key in categories) {
+            if (categories[key].length === 0) continue;
             
-            let blockHtml = `<div class="category-block"><div class="category-title">${key}</div>`;
-            prods.forEach(p => {
+            let blockHtml = `<div class="category-block"><div class="category-title">${catNames[key]}</div>`;
+            categories[key].forEach(p => {
                 blockHtml += `
                     <div class="prod-item" id="p-${p.id}">
-                        <div class="form-group"><label>Name:</label><input type="text" id="n-${p.id}" value="${p.name || ''}"></div>
-                        <div class="form-group"><label>Price:</label><input type="text" id="pr-${p.id}" value="${p.price || ''}"></div>
+                        <div class="form-group"><label>الاسم:</label><input type="text" id="n-${p.id}" value="${p.name || ''}"></div>
+                        <div class="form-group"><label>السعر:</label><input type="text" id="pr-${p.id}" value="${p.price || ''}"></div>
                         <div class="actions">
-                            <button class="btn-edit" onclick="saveEdit(${p.id})">Save Edit</button>
-                            <button class="btn-del" onclick="deleteProduct(${p.id})">Delete ❌</button>
+                            <button class="btn-edit" onclick="saveEdit(${p.id})">حفظ التعديل</button>
+                            <button class="btn-del" onclick="deleteProduct(${p.id})">حذف ❌</button>
                         </div>
                     </div>`;
             });
@@ -138,7 +140,7 @@ async function loadProducts() {
             list.innerHTML += blockHtml;
         }
     } catch(err) {
-        alert("Failed to load products. Check credentials!");
+        alert("فشل تحميل المنتجات. تأكد من البيانات!");
     }
 }
 
@@ -163,15 +165,15 @@ async function saveEdit(id) {
             body: JSON.stringify({ message: "Edit product", content: utf8_to_b64(JSON.stringify(products, null, 2)), sha: data.sha })
         });
         if(!response.ok) throw new Error();
-        alert("Product updated successfully!");
+        alert("تم التعديل بنجاح!");
         loadProducts();
     } catch(err) {
-        alert("Error saving updates!");
+        alert("خطأ أثناء التعديل!");
     }
 }
 
 async function deleteProduct(id) {
-    if (!confirm("Are you sure you want to delete this product?")) return;
+    if (!confirm("هل أنت متأكد من حذف هذا المنتج؟")) return;
     const {user, repo, token} = getAuth();
     try {
         const res = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/products.json`, { headers: { "Authorization": `token ${token}` } });
@@ -184,10 +186,10 @@ async function deleteProduct(id) {
             body: JSON.stringify({ message: "Delete product", content: utf8_to_b64(JSON.stringify(products, null, 2)), sha: data.sha })
         });
         if(!response.ok) throw new Error();
-        alert("Product deleted!");
+        alert("تم الحذف!");
         loadProducts();
     } catch(err) {
-        alert("Error deleting product!");
+        alert("خطأ أثناء الحذف!");
     }
 }
 
@@ -202,7 +204,7 @@ async function addProduct() {
     const image = document.getElementById('addImage').value.trim();
 
     if (!user || !repo || !token || !name || !price || !image) {
-        return alert("Please fill all required fields and credentials!");
+        return alert("يرجى ملء جميع الحقول المطلوبة!");
     }
 
     try {
@@ -219,7 +221,7 @@ async function addProduct() {
             body: JSON.stringify({ message: "Add product", content: utf8_to_b64(JSON.stringify(products, null, 2)), sha: data.sha })
         });
         if(!response.ok) throw new Error();
-        alert("Product added successfully!");
+        alert("تمت إضافة المنتج بنجاح!");
         
         document.getElementById('addName').value = '';
         document.getElementById('addSize').value = '';
@@ -228,10 +230,10 @@ async function addProduct() {
         document.getElementById('addPrice').value = '';
         document.getElementById('addImage').value = '';
     } catch(err) {
-        alert("Error adding product!");
+        alert("خطأ أثناء الإضافة!");
     }
 }
 </script>
 </body>
-                                    </html>
-                                                                
+                                                              </html>
+            
