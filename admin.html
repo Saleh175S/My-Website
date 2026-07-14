@@ -6,7 +6,7 @@
     <style>
         body { font-family: Arial, sans-serif; background-color: #f4f4f9; padding: 20px; margin: 0; }
         .container { max-width: 500px; background: white; padding: 25px; margin: 0 auto; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h2 { text-align: center; color: #333; margin-bottom: 20px; }
+        h2, h4 { text-align: center; color: #333; margin-bottom: 20px; }
         .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
         .tab-btn { flex: 1; padding: 10px; cursor: pointer; border: none; border-radius: 4px; background: #ddd; font-weight: bold; }
         .tab-btn.active { background: #007bff; color: white; }
@@ -17,6 +17,8 @@
         input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
         button { width: 100%; padding: 12px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; margin-top: 10px; }
         .sec-group { background: #fff3cd; padding: 15px; border: 1px solid #ffeeba; border-radius: 6px; margin-bottom: 20px; }
+        .category-block { margin-top: 20px; padding: 10px; background: #e9ecef; border-radius: 6px; }
+        .category-title { font-weight: bold; color: #495057; margin-bottom: 10px; text-transform: uppercase; border-bottom: 2px solid #dee2e6; padding-bottom: 5px; }
         .prod-item { background: #f9f9f9; padding: 15px; border: 1px solid #eee; border-radius: 6px; margin-bottom: 10px; }
         .actions { display: flex; gap: 10px; margin-top: 10px; }
         .btn-edit { background: #ffc107; color: black; }
@@ -111,17 +113,30 @@ async function loadProducts() {
             return;
         }
         
+        const categories = { cats: [], dogs: [], chick: [], vaccine: [] };
         products.forEach(p => {
-            list.innerHTML += `
-                <div class="prod-item" id="p-${p.id}">
-                    <div class="form-group"><label>Name:</label><input type="text" id="n-${p.id}" value="${p.name || ''}"></div>
-                    <div class="form-group"><label>Price:</label><input type="text" id="pr-${p.id}" value="${p.price || ''}"></div>
-                    <div class="actions">
-                        <button class="btn-edit" onclick="saveEdit(${p.id})">Save Edit</button>
-                        <button class="btn-del" onclick="deleteProduct(${p.id})">Delete ❌</button>
-                    </div>
-                </div>`;
+            const cat = p.category || 'cats';
+            if (categories[cat]) { categories[cat].push(p); } else { categories['cats'].push(p); }
         });
+
+        for (const [key, prods] of Object.getOwnPropertyNames(categories).map(k => [k, categories[k]])) {
+            if (prods.length === 0) continue;
+            
+            let blockHtml = `<div class="category-block"><div class="category-title">${key}</div>`;
+            prods.forEach(p => {
+                blockHtml += `
+                    <div class="prod-item" id="p-${p.id}">
+                        <div class="form-group"><label>Name:</label><input type="text" id="n-${p.id}" value="${p.name || ''}"></div>
+                        <div class="form-group"><label>Price:</label><input type="text" id="pr-${p.id}" value="${p.price || ''}"></div>
+                        <div class="actions">
+                            <button class="btn-edit" onclick="saveEdit(${p.id})">Save Edit</button>
+                            <button class="btn-del" onclick="deleteProduct(${p.id})">Delete ❌</button>
+                        </div>
+                    </div>`;
+            });
+            blockHtml += `</div>`;
+            list.innerHTML += blockHtml;
+        }
     } catch(err) {
         alert("Failed to load products. Check credentials!");
     }
@@ -134,8 +149,8 @@ async function saveEdit(id) {
         const data = await res.json();
         let products = JSON.parse(b64_to_utf8(data.content));
         
-        const newName = document.querySelector(`#n-${id}`).value;
-        const newPrice = document.querySelector(`#pr-${id}`).value;
+        const newName = document.getElementById(`n-${id}`).value;
+        const newPrice = document.getElementById(`pr-${id}`).value;
         const prod = products.find(p => p.id === id);
         if(prod) {
             prod.name = newName;
@@ -218,160 +233,5 @@ async function addProduct() {
 }
 </script>
 </body>
-</html>
-    const {user, repo, token} = await getAuth();
-    const name = document.getElementById('prodName').value;
-    const price = document.getElementById('prodPrice').value;
-    const image = document.getElementById('prodImage').value;
-
-    const res = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/products.json`, { headers: { "Authorization": `token ${token}` } });
-    const data = await res.json();
-    let products = JSON.parse(b64_to_utf8(data.content));
-    
-    products.push({ id: Date.now(), name, price, image });
-    
-    await fetch(`https://api.github.com/repos/${user}/${repo}/contents/products.json`, {
-        method: "PUT",
-        headers: { "Authorization": `token ${token}`, "Content-Type": "application/json" },
-        body: JSON.stringify({
-            message: "Add product",
-            content: utf8_to_b64(JSON.stringify(products, null, 2)),
-            sha: data.sha
-        })
-    });
-    alert("تمت الإضافة!");
-    loadProducts();
-}
-</script>
-</body>
-</html>
-
-    <div class="form-group">
-        <label>المساحة / السعة:</label>
-        <input type="text" id="prodStorage">
-    </div>
-
-    <div class="form-group">
-        <label>كود المنتج:</label>
-        <input type="text" id="prodCode">
-    </div>
-
-    <div class="form-group">
-        <label>السعر:</label>
-        <input type="text" id="prodPrice">
-    </div>
-
-    <div class="form-group">
-        <label>رابط صورة المنتج:</label>
-        <input type="text" id="prodImage">
-    </div>
-
-    <button onclick="submitProduct()">حفظ وإضافة المنتج للموقع فوراً</button>
-</div>
-
-<script>
-function utf8_to_b64(str) {
-    return btoa(unescape(encodeURIComponent(str)));
-}
-
-function b64_to_utf8(str) {
-    return decodeURIComponent(escape(atob(str)));
-}
-
-function submitProduct() {
-    const user = document.getElementById('ghUser').value.trim();
-    const repo = document.getElementById('ghRepo').value.trim();
-    const token = document.getElementById('ghToken').value.trim();
-    
-    const name = document.getElementById('prodName').value.trim();
-    const category = document.getElementById('prodCategory').value;
-    const size = document.getElementById('prodSize').value.trim();
-    const storage = document.getElementById('prodStorage').value.trim();
-    const code = document.getElementById('prodCode').value.trim();
-    const price = document.getElementById('prodPrice').value.trim();
-    const image = document.getElementById('prodImage').value.trim();
-
-    if (!user || !repo || !token || !name || !price || !image) {
-        alert("برجاء ملء البيانات الأساسية ومفتاح الأمان أولاً!");
-        return;
-    }
-
-    const url = `https://api.github.com/repos/${user}/${repo}/contents/products.json`;
-
-    fetch(url, {
-        headers: {
-            "Authorization": `token ${token}`
-        }
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error("Failed to fetch products.json");
-        }
-        return response.json();
-    })
-    .then(fileData => {
-        const sha = fileData.sha;
-        const currentContent = b64_to_utf8(fileData.content);
-        let productsList = [];
-        
-        try {
-            productsList = JSON.parse(currentContent);
-        } catch (e) {
-            productsList = [];
-        }
-
-        const newId = productsList.length > 0 ? Math.max(...productsList.map(p => p.id)) + 1 : 1;
-
-        const newProduct = {
-            id: newId,
-            name: name,
-            category: category,
-            size: size,
-            storage: storage,
-            code: code,
-            price: price,
-            image: image
-        };
-
-        productsList.push(newProduct);
-
-        const updatedContentBase64 = utf8_to_b64(JSON.stringify(productsList, null, 2));
-
-        const bodyData = {
-            message: `Add product: ${name}`,
-            content: updatedContentBase64,
-            sha: sha
-        };
-
-        return fetch(url, {
-            method: "PUT",
-            headers: {
-                "Authorization": `token ${token}`,
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(bodyData)
-        });
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error("Failed to update");
-        }
-        return response.json();
-    })
-    .then(data => {
-        alert("تم إضافة المنتج بنجاح وتحديث الموقع!");
-        document.getElementById('prodName').value = '';
-        document.getElementById('prodSize').value = '';
-        document.getElementById('prodStorage').value = '';
-        document.getElementById('prodCode').value = '';
-        document.getElementById('prodPrice').value = '';
-        document.getElementById('prodImage').value = '';
-    })
-    .catch(error => {
-        console.error(error);
-        alert("حدث خطأ! تأكد من صحة اسم الحساب، المستودع، ومفتاح الأمان.");
-    });
-}
-</script>
-</body>
-</html>
+                                    </html>
+                                                                
