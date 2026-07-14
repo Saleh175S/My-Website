@@ -1,102 +1,224 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
-    <title>لوحة التحكم المطورة 🐾</title>
+    <title>Admin Dashboard</title>
     <style>
-        body { font-family: Arial, sans-serif; background-color: #f4f4f9; padding: 20px; }
-        .container { max-width: 600px; background: white; padding: 20px; margin: 0 auto; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .sec-group { background-color: #fff3cd; padding: 15px; border-radius: 6px; margin-bottom: 20px; }
-        input, select { width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        button { width: 100%; padding: 10px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
-        .prod-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; }
-        .del-btn { background-color: #dc3545; color: white; padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer; }
+        body { font-family: Arial, sans-serif; background-color: #f4f4f9; padding: 20px; margin: 0; }
+        .container { max-width: 500px; background: white; padding: 25px; margin: 0 auto; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #333; margin-bottom: 20px; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tab-btn { flex: 1; padding: 10px; cursor: pointer; border: none; border-radius: 4px; background: #ddd; font-weight: bold; }
+        .tab-btn.active { background: #007bff; color: white; }
+        .section { display: none; }
+        .section.active { display: block; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; margin-top: 10px; }
+        .sec-group { background: #fff3cd; padding: 15px; border: 1px solid #ffeeba; border-radius: 6px; margin-bottom: 20px; }
+        .prod-item { background: #f9f9f9; padding: 15px; border: 1px solid #eee; border-radius: 6px; margin-bottom: 10px; }
+        .actions { display: flex; gap: 10px; margin-top: 10px; }
+        .btn-edit { background: #ffc107; color: black; }
+        .btn-del { background: #dc3545; color: white; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>لوحة الإدارة (إضافة وحذف) 🐾</h2>
-
-    <div class="sec-group">
-        <input type="text" id="ghUser" placeholder="اسم حسابك">
-        <input type="text" id="ghRepo" placeholder="اسم المستودع">
-        <input type="password" id="ghToken" placeholder="التوكن (GitHub Token)">
-        <button onclick="loadProducts()">جلب قائمة المنتجات</button>
+    <h2>Admin Dashboard</h2>
+    
+    <div class="tabs">
+        <button class="tab-btn active" onclick="showSection('add', event)">Add Product</button>
+        <button class="tab-btn" onclick="showSection('manage', event)">Manage Products</button>
     </div>
 
-    <hr>
-    <h3>إضافة منتج جديد:</h3>
-    <input type="text" id="prodName" placeholder="اسم المنتج">
-    <input type="text" id="prodPrice" placeholder="السعر">
-    <input type="text" id="prodImage" placeholder="رابط الصورة">
-    <button onclick="submitProduct()">حفظ المنتج</button>
+    <div class="sec-group">
+        <div class="form-group">
+            <label>GitHub Username:</label>
+            <input type="text" id="ghUser" placeholder="e.g. username">
+        </div>
+        <div class="form-group">
+            <label>Repository Name:</label>
+            <input type="text" id="ghRepo" placeholder="e.g. my-shop">
+        </div>
+        <div class="form-group">
+            <label>GitHub Token:</label>
+            <input type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxx">
+        </div>
+    </div>
 
-    <hr>
-    <h3>قائمة المنتجات الحالية:</h3>
-    <div id="productsList"></div>
+    <!-- Add Section -->
+    <div id="addSection" class="section active">
+        <div class="form-group"><label>Product Name:</label><input type="text" id="addName"></div>
+        <div class="form-group">
+            <label>Category:</label>
+            <select id="addCategory">
+                <option value="cats">Cats</option>
+                <option value="dogs">Dogs</option>
+                <option value="chick">Chickens</option>
+                <option value="vaccine">Vaccines</option>
+            </select>
+        </div>
+        <div class="form-group"><label>Size:</label><input type="text" id="addSize"></div>
+        <div class="form-group"><label>Storage:</label><input type="text" id="addStorage"></div>
+        <div class="form-group"><label>Product Code:</label><input type="text" id="addCode"></div>
+        <div class="form-group"><label>Price:</label><input type="text" id="addPrice"></div>
+        <div class="form-group"><label>Image URL:</label><input type="text" id="addImage"></div>
+        <button onclick="addProduct()">Save Product</button>
+    </div>
+
+    <!-- Manage Section -->
+    <div id="manageSection" class="section">
+        <button onclick="loadProducts()" style="background:#28a745; margin-bottom: 15px;">Load Products List</button>
+        <div id="productsList"></div>
+    </div>
 </div>
 
 <script>
 function utf8_to_b64(str) { return btoa(unescape(encodeURIComponent(str))); }
 function b64_to_utf8(str) { return decodeURIComponent(escape(atob(str))); }
 
-async function getAuth() {
-    return {
-        user: document.getElementById('ghUser').value.trim(),
-        repo: document.getElementById('ghRepo').value.trim(),
-        token: document.getElementById('ghToken').value.trim()
-    };
+function showSection(s, e) {
+    document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+    document.getElementById(s + 'Section').classList.add('active');
+    e.target.classList.add('active');
+}
+
+function getAuth() { 
+    return { 
+        user: document.getElementById('ghUser').value.trim(), 
+        repo: document.getElementById('ghRepo').value.trim(), 
+        token: document.getElementById('ghToken').value.trim() 
+    }; 
 }
 
 async function loadProducts() {
-    const {user, repo, token} = await getAuth();
-    if (!user || !repo || !token) return alert("اكتب البيانات والتوكن أولاً!");
+    const {user, repo, token} = getAuth();
+    if (!user || !repo || !token) return alert("Please fill GitHub credentials first!");
     
-    const url = `https://api.github.com/repos/${user}/${repo}/contents/products.json`;
-    const res = await fetch(url, { headers: { "Authorization": `token ${token}` } });
-    const data = await res.json();
-    const products = JSON.parse(b64_to_utf8(data.content));
-    
-    const listDiv = document.getElementById('productsList');
-    listDiv.innerHTML = '';
-    products.forEach(p => {
-        listDiv.innerHTML += `
-            <div class="prod-item">
-                <span>${p.name}</span>
-                <button class="del-btn" onclick="deleteProduct(${p.id})">حذف</button>
-            </div>`;
-    });
+    try {
+        const res = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/products.json`, { headers: { "Authorization": `token ${token}` } });
+        if(!res.ok) throw new Error();
+        const data = await res.json();
+        const products = JSON.parse(b64_to_utf8(data.content));
+        const list = document.getElementById('productsList');
+        list.innerHTML = '';
+        
+        if(products.length === 0) {
+            list.innerHTML = '<p style="text-align:center; color:#999;">No products found.</p>';
+            return;
+        }
+        
+        products.forEach(p => {
+            list.innerHTML += `
+                <div class="prod-item" id="p-${p.id}">
+                    <div class="form-group"><label>Name:</label><input type="text" id="n-${p.id}" value="${p.name || ''}"></div>
+                    <div class="form-group"><label>Price:</label><input type="text" id="pr-${p.id}" value="${p.price || ''}"></div>
+                    <div class="actions">
+                        <button class="btn-edit" onclick="saveEdit(${p.id})">Save Edit</button>
+                        <button class="btn-del" onclick="deleteProduct(${p.id})">Delete ❌</button>
+                    </div>
+                </div>`;
+        });
+    } catch(err) {
+        alert("Failed to load products. Check credentials!");
+    }
+}
+
+async function saveEdit(id) {
+    const {user, repo, token} = getAuth();
+    try {
+        const res = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/products.json`, { headers: { "Authorization": `token ${token}` } });
+        const data = await res.json();
+        let products = JSON.parse(b64_to_utf8(data.content));
+        
+        const newName = document.querySelector(`#n-${id}`).value;
+        const newPrice = document.querySelector(`#pr-${id}`).value;
+        const prod = products.find(p => p.id === id);
+        if(prod) {
+            prod.name = newName;
+            prod.price = newPrice;
+        }
+        
+        const response = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/products.json`, {
+            method: "PUT",
+            headers: { "Authorization": `token ${token}`, "Content-Type": "application/json" },
+            body: JSON.stringify({ message: "Edit product", content: utf8_to_b64(JSON.stringify(products, null, 2)), sha: data.sha })
+        });
+        if(!response.ok) throw new Error();
+        alert("Product updated successfully!");
+        loadProducts();
+    } catch(err) {
+        alert("Error saving updates!");
+    }
 }
 
 async function deleteProduct(id) {
-    if (!confirm("متأكد عايز تحذف المنتج ده؟")) return;
-    const {user, repo, token} = await getAuth();
-    const url = `https://api.github.com/repos/${user}/${repo}/contents/products.json`;
-    
-    // 1. Get current file
-    const res = await fetch(url, { headers: { "Authorization": `token ${token}` } });
-    const data = await res.json();
-    let products = JSON.parse(b64_to_utf8(data.content));
-    
-    // 2. Remove product
-    products = products.filter(p => p.id !== id);
-    
-    // 3. Update file
-    await fetch(url, {
-        method: "PUT",
-        headers: { "Authorization": `token ${token}`, "Content-Type": "application/json" },
-        body: JSON.stringify({
-            message: `Delete product ID: ${id}`,
-            content: utf8_to_b64(JSON.stringify(products, null, 2)),
-            sha: data.sha
-        })
-    });
-    alert("تم الحذف!");
-    loadProducts(); // تحديث القائمة
+    if (!confirm("Are you sure you want to delete this product?")) return;
+    const {user, repo, token} = getAuth();
+    try {
+        const res = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/products.json`, { headers: { "Authorization": `token ${token}` } });
+        const data = await res.json();
+        let products = JSON.parse(b64_to_utf8(data.content)).filter(p => p.id !== id);
+        
+        const response = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/products.json`, {
+            method: "PUT",
+            headers: { "Authorization": `token ${token}`, "Content-Type": "application/json" },
+            body: JSON.stringify({ message: "Delete product", content: utf8_to_b64(JSON.stringify(products, null, 2)), sha: data.sha })
+        });
+        if(!response.ok) throw new Error();
+        alert("Product deleted!");
+        loadProducts();
+    } catch(err) {
+        alert("Error deleting product!");
+    }
 }
 
-async function submitProduct() {
+async function addProduct() {
+    const {user, repo, token} = getAuth();
+    const name = document.getElementById('addName').value.trim();
+    const category = document.getElementById('addCategory').value;
+    const size = document.getElementById('addSize').value.trim();
+    const storage = document.getElementById('addStorage').value.trim();
+    const code = document.getElementById('addCode').value.trim();
+    const price = document.getElementById('addPrice').value.trim();
+    const image = document.getElementById('addImage').value.trim();
+
+    if (!user || !repo || !token || !name || !price || !image) {
+        return alert("Please fill all required fields and credentials!");
+    }
+
+    try {
+        const res = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/products.json`, { headers: { "Authorization": `token ${token}` } });
+        const data = await res.json();
+        let products = JSON.parse(b64_to_utf8(data.content));
+        
+        const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
+        products.push({ id: newId, name, category, size, storage, code, price, image });
+        
+        const response = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/products.json`, {
+            method: "PUT",
+            headers: { "Authorization": `token ${token}`, "Content-Type": "application/json" },
+            body: JSON.stringify({ message: "Add product", content: utf8_to_b64(JSON.stringify(products, null, 2)), sha: data.sha })
+        });
+        if(!response.ok) throw new Error();
+        alert("Product added successfully!");
+        
+        document.getElementById('addName').value = '';
+        document.getElementById('addSize').value = '';
+        document.getElementById('addStorage').value = '';
+        document.getElementById('addCode').value = '';
+        document.getElementById('addPrice').value = '';
+        document.getElementById('addImage').value = '';
+    } catch(err) {
+        alert("Error adding product!");
+    }
+}
+</script>
+</body>
+</html>
     const {user, repo, token} = await getAuth();
     const name = document.getElementById('prodName').value;
     const price = document.getElementById('prodPrice').value;
