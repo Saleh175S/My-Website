@@ -52,19 +52,18 @@
 
     <!-- قسم الإضافة -->
     <div id="addSection" class="section active">
-        <div class="form-group"><label>اسم المنتج:</label><input type="text" id="addName"></div>
         <div class="form-group">
             <label>القسم:</label>
             <select id="addCategory">
-                <option value="cats">قطط</option>
-                <option value="dogs">كلاب</option>
-                <option value="chick">كتاكيت</option>
-                <option value="vaccine">تطعيمات</option>
+                <option value="cats">قطط (A)</option>
+                <option value="dogs">كلاب (B)</option>
+                <option value="chick">كتاكيت (C)</option>
+                <option value="vaccine">تطعيمات (D)</option>
             </select>
         </div>
+        <div class="form-group"><label>اسم المنتج:</label><input type="text" id="addName"></div>
         <div class="form-group"><label>الحجم:</label><input type="text" id="addSize"></div>
         <div class="form-group"><label>المساحة / السعة:</label><input type="text" id="addStorage"></div>
-        <div class="form-group"><label>كود المنتج:</label><input type="text" id="addCode"></div>
         <div class="form-group"><label>السعر:</label><input type="text" id="addPrice"></div>
         <div class="form-group"><label>رابط الصورة:</label><input type="text" id="addImage"></div>
         <button onclick="addProduct()">حفظ المنتج</button>
@@ -114,7 +113,7 @@ async function loadProducts() {
         }
         
         const categories = { cats: [], dogs: [], chick: [], vaccine: [] };
-        const catNames = { cats: 'قطط', dogs: 'كلاب', chick: 'كتاكيت', vaccine: 'تطعيمات' };
+        const catNames = { cats: 'قطط (A)', dogs: 'كلاب (B)', chick: 'كتاكيت (C)', vaccine: 'تطعيمات (D)' };
 
         products.forEach(p => {
             const cat = p.category || 'cats';
@@ -128,6 +127,7 @@ async function loadProducts() {
             categories[key].forEach(p => {
                 blockHtml += `
                     <div class="prod-item" id="p-${p.id}">
+                        <div class="form-group"><label>كود المنتج:</label><input type="text" value="${p.code || ''}" disabled style="background:#e9ecef; font-weight:bold;"></div>
                         <div class="form-group"><label>الاسم:</label><input type="text" id="n-${p.id}" value="${p.name || ''}"></div>
                         <div class="form-group"><label>السعر:</label><input type="text" id="pr-${p.id}" value="${p.price || ''}"></div>
                         <div class="actions">
@@ -199,7 +199,6 @@ async function addProduct() {
     const category = document.getElementById('addCategory').value;
     const size = document.getElementById('addSize').value.trim();
     const storage = document.getElementById('addStorage').value.trim();
-    const code = document.getElementById('addCode').value.trim();
     const price = document.getElementById('addPrice').value.trim();
     const image = document.getElementById('addImage').value.trim();
 
@@ -212,21 +211,30 @@ async function addProduct() {
         const data = await res.json();
         let products = JSON.parse(b64_to_utf8(data.content));
         
+        // حساب الترتيب التلقائي للكود بناءً على عدد المنتجات الحالية في هذا القسم
+        const categoryCounts = { cats: 0, dogs: 0, chick: 0, vaccine: 0 };
+        products.forEach(p => {
+            if (categoryCounts[p.category]) categoryCounts[p.category]++;
+        });
+        
+        const prefixes = { cats: 'A', dogs: 'B', chick: 'C', vaccine: 'D' };
+        const nextNumber = categoryCounts[category] + 1;
+        const generatedCode = prefixes[category] + nextNumber;
+
         const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
-        products.push({ id: newId, name, category, size, storage, code, price, image });
+        products.push({ id: newId, name, category, size, storage, code: generatedCode, price, image });
         
         const response = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/products.json`, {
             method: "PUT",
             headers: { "Authorization": `token ${token}`, "Content-Type": "application/json" },
-            body: JSON.stringify({ message: "Add product", content: utf8_to_b64(JSON.stringify(products, null, 2)), sha: data.sha })
+            body: JSON.stringify({ message: "Add product with auto code", content: utf8_to_b64(JSON.stringify(products, null, 2)), sha: data.sha })
         });
         if(!response.ok) throw new Error();
-        alert("تمت إضافة المنتج بنجاح!");
+        alert(`تمت إضافة المنتج بنجاح! الكود التلقائي: ${generatedCode}`);
         
         document.getElementById('addName').value = '';
         document.getElementById('addSize').value = '';
         document.getElementById('addStorage').value = '';
-        document.getElementById('addCode').value = '';
         document.getElementById('addPrice').value = '';
         document.getElementById('addImage').value = '';
     } catch(err) {
@@ -235,5 +243,5 @@ async function addProduct() {
 }
 </script>
 </body>
-                                                              </html>
-            
+    </html>
+                    
